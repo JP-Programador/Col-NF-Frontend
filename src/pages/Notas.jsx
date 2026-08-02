@@ -52,9 +52,16 @@ export default function Notas() {
     setPage(1);
   };
 
-  const handleExport = (format) => {
-    const url = `${api.defaults.baseURL}/export/${format}`;
-    window.open(url, "_blank");
+  const handleExport = async (format) => {
+    const response = await api.get(`/export/${format}`, { responseType: "blob" });
+    const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = format === "excel" ? "notas_fiscais.xlsx" : "notas_fiscais.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(blobUrl);
   };
 
   const totalPages = Math.max(1, Math.ceil((result.total || 0) / 20));

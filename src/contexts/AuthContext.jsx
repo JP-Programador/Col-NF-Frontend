@@ -28,7 +28,13 @@ export function AuthProvider({ children }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Falha ao encerrar sessao no servidor, limpando sessao local.", error);
+    } finally {
+      setSession(null);
+    }
   };
 
   const value = {

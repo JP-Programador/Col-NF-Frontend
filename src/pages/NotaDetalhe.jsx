@@ -153,6 +153,7 @@ export default function NotaDetalhe() {
               disabled={saving}
             >
               <option value="recebida">Recebida</option>
+              <option value="revisao">Necessita Revisao</option>
               <option value="processada">Processada</option>
               <option value="conferida">Conferida</option>
             </select>
