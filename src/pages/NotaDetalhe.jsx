@@ -1,6 +1,6 @@
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import Badge from "../components/common/Badge";
 import { api } from "../services/api";
@@ -8,9 +8,11 @@ import { formatCnpj, formatCurrency, formatDate } from "../utils/format";
 
 export default function NotaDetalhe() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [invoice, setInvoice] = useState(null);
   const [catalogs, setCatalogs] = useState({ categories: [], costCenters: [], branches: [] });
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadInvoice = () => {
     api.get(`/invoices/${id}`).then(({ data }) => setInvoice(data));
@@ -36,6 +38,20 @@ export default function NotaDetalhe() {
     }
   };
 
+  const handleDelete = async () => {
+    const label = `${invoice.invoice_type === "NFSE" ? "NFS-e" : "NF-e"} #${invoice.number}`;
+    if (!window.confirm(`Excluir permanentemente a nota ${label}? Essa acao nao pode ser desfeita.`)) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await api.delete(`/invoices/${id}`);
+      navigate("/notas");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (!invoice) {
     return <p className="text-sm text-gray-400">Carregando nota fiscal...</p>;
   }
@@ -53,9 +69,16 @@ export default function NotaDetalhe() {
           </h2>
           <p className="text-sm text-gray-500">{invoice.supplier_name}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Badge status={invoice.workflow_status}>{invoice.workflow_status}</Badge>
           <Badge status={invoice.payment_status}>{invoice.payment_status}</Badge>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-colgate-red transition-colors hover:bg-colgate-red/10 disabled:opacity-50"
+          >
+            <Trash2 size={16} /> Excluir Nota
+          </button>
         </div>
       </div>
 

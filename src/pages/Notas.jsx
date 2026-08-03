@@ -1,4 +1,4 @@
-import { Download, FileSpreadsheet } from "lucide-react";
+import { Download, FileSpreadsheet, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -52,6 +52,19 @@ export default function Notas() {
     setPage(1);
   };
 
+  const handleDelete = async (invoice) => {
+    const label = `${invoice.invoice_type === "NFSE" ? "NFS-e" : "NF-e"} #${invoice.number}`;
+    if (!window.confirm(`Excluir permanentemente a nota ${label}? Essa acao nao pode ser desfeita.`)) {
+      return;
+    }
+    await api.delete(`/invoices/${invoice.id}`);
+    setResult((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.id !== invoice.id),
+      total: Math.max(0, (prev.total || 1) - 1),
+    }));
+  };
+
   const handleExport = async (format) => {
     const response = await api.get(`/export/${format}`, { responseType: "blob" });
     const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
@@ -102,12 +115,13 @@ export default function Notas() {
               <th className="px-4 py-3">Vencimento</th>
               <th className="px-4 py-3 text-right">Valor</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">Carregando...</td>
+                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">Carregando...</td>
               </tr>
             ) : result.items?.length ? (
               result.items.map((invoice) => (
@@ -131,11 +145,20 @@ export default function Notas() {
                   <td className="px-4 py-3">
                     <Badge status={invoice.payment_status}>{invoice.payment_status}</Badge>
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => handleDelete(invoice)}
+                      title="Excluir nota"
+                      className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-colgate-red/10 hover:text-colgate-red"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">Nenhuma nota encontrada.</td>
+                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">Nenhuma nota encontrada.</td>
               </tr>
             )}
           </tbody>
