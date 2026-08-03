@@ -160,6 +160,20 @@ function UsersPanel({ items, loading, form, setForm, onCreated }) {
     onCreated();
   };
 
+  const handleDelete = async (userRow) => {
+    const confirmed = window.confirm(
+      `Excluir o login de "${userRow.full_name}" (${userRow.email})?\n\nAs notas e uploads que ele ja enviou serao mantidos.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await api.delete(`/users/${userRow.id}`);
+      onCreated();
+    } catch (err) {
+      alert(err.response?.data?.detail || "Erro ao excluir usuario.");
+    }
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit} className="card grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -229,12 +243,20 @@ function UsersPanel({ items, loading, form, setForm, onCreated }) {
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => toggleActive(userRow)}
-                      className="text-xs font-semibold text-colgate-blue hover:underline"
-                    >
-                      {userRow.active ? "Desativar" : "Ativar"}
-                    </button>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => toggleActive(userRow)}
+                        className="text-xs font-semibold text-colgate-blue hover:underline"
+                      >
+                        {userRow.active ? "Desativar" : "Ativar"}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(userRow)}
+                        className="text-xs font-semibold text-colgate-red hover:underline"
+                      >
+                        Excluir
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
