@@ -1,6 +1,7 @@
 import { Download, FileSpreadsheet, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 import Badge from "../components/common/Badge";
 import InvoiceFilters from "../components/notas/InvoiceFilters";
@@ -52,17 +53,64 @@ export default function Notas() {
     setPage(1);
   };
 
+  // 🎨 MODAL MODERNA DE CONFIRMAÇÃO DE EXCLUSÃO
   const handleDelete = async (invoice) => {
     const label = `${invoice.invoice_type === "NFSE" ? "NFS-e" : "NF-e"} #${invoice.number}`;
-    if (!window.confirm(`Excluir permanentemente a nota ${label}? Essa acao nao pode ser desfeita.`)) {
-      return;
+
+    const confirmResult = await Swal.fire({
+      title: "Excluir Nota Fiscal?",
+      html: `Deseja excluir permanentemente a nota <b style="color: #f3f4f6">${label}</b>?<br><span style="font-size: 0.85em; color: #9ca3af;">Essa ação não pode ser desfeita.</span>`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626", // Vermelho
+      cancelButtonColor: "#374151",  // Cinza escuro
+      confirmButtonText: "Sim, excluir",
+      cancelButtonText: "Cancelar",
+      background: "#1f2937",        // Fundo escuro (Dark Mode)
+      color: "#f9fafb",              // Cor do texto
+      border: "1px solid #374151",
+      customClass: {
+        popup: "rounded-2xl shadow-2xl border border-gray-700",
+        confirmButton: "px-4 py-2 rounded-xl font-medium",
+        cancelButton: "px-4 py-2 rounded-xl font-medium",
+      },
+    });
+
+    // Se o usuário clicou em "Sim, excluir"
+    if (confirmResult.isConfirmed) {
+      try {
+        await api.delete(`/invoices/${invoice.id}`);
+
+        // Atualiza a lista na tela imediatamente
+        setResult((prev) => ({
+          ...prev,
+          items: prev.items.filter((item) => item.id !== invoice.id),
+          total: Math.max(0, (prev.total || 1) - 1),
+        }));
+
+        // Toast discreto confirmando a exclusão
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "Nota excluída com sucesso!",
+          showConfirmButton: false,
+          timer: 2500,
+          background: "#111827",
+          color: "#fff",
+        });
+      } catch (error) {
+        // Alerta em caso de erro na requisição
+        Swal.fire({
+          title: "Erro ao excluir",
+          text: "Não foi possível remover a nota fiscal. Tente novamente.",
+          icon: "error",
+          background: "#1f2937",
+          color: "#f9fafb",
+          confirmButtonColor: "#dc2626",
+        });
+      }
     }
-    await api.delete(`/invoices/${invoice.id}`);
-    setResult((prev) => ({
-      ...prev,
-      items: prev.items.filter((item) => item.id !== invoice.id),
-      total: Math.max(0, (prev.total || 1) - 1),
-    }));
   };
 
   const handleExport = async (format) => {
