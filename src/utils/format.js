@@ -25,3 +25,13 @@ export function formatCnpj(cnpj) {
   if (!cnpj || cnpj.length !== 14) return cnpj || "-";
   return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
 }
+
+const INVOICE_TYPE_LABELS = {
+  NFSE: "NFS-e",
+  NFE: "NF-e",
+  RECIBO: "Recibo",
+};
+
+export function formatInvoiceType(invoiceType) {
+  return INVOICE_TYPE_LABELS[invoiceType] || invoiceType || "-";
+}

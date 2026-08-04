@@ -1,10 +1,11 @@
-import { ArrowLeft, FileText, Trash2 } from "lucide-react";
+import { ArrowLeft, FileText, Pencil, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import Badge from "../components/common/Badge";
+import InvoiceEditModal from "../components/notas/InvoiceEditModal";
 import { api } from "../services/api";
-import { formatCnpj, formatCurrency, formatDate } from "../utils/format";
+import { formatCnpj, formatCurrency, formatDate, formatInvoiceType } from "../utils/format";
 
 export default function NotaDetalhe() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ export default function NotaDetalhe() {
   const [catalogs, setCatalogs] = useState({ categories: [], costCenters: [], branches: [] });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const loadInvoice = () => {
     api.get(`/invoices/${id}`).then(({ data }) => setInvoice(data));
@@ -38,8 +40,29 @@ export default function NotaDetalhe() {
     }
   };
 
+  const applySuggestedCategory = async () => {
+    const suggestion = invoice.ai_suggested_category;
+    if (!suggestion) return;
+
+    setSaving(true);
+    try {
+      let match = catalogs.categories.find((c) => c.name.trim().toLowerCase() === suggestion.trim().toLowerCase());
+
+      if (!match) {
+        const { data: created } = await api.post("/categories", { name: suggestion });
+        match = created;
+        setCatalogs((prev) => ({ ...prev, categories: [...prev.categories, created] }));
+      }
+
+      const { data } = await api.patch(`/invoices/${id}`, { category_id: match.id });
+      setInvoice((prev) => ({ ...prev, ...data }));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleDelete = async () => {
-    const label = `${invoice.invoice_type === "NFSE" ? "NFS-e" : "NF-e"} #${invoice.number}`;
+    const label = `${formatInvoiceType(invoice.invoice_type)} #${invoice.number}`;
     if (!window.confirm(`Excluir permanentemente a nota ${label}? Essa acao nao pode ser desfeita.`)) {
       return;
     }
@@ -50,6 +73,11 @@ export default function NotaDetalhe() {
     } finally {
       setDeleting(false);
     }
+  };
+
+  const categoryNameById = (categoryId) => {
+    const match = catalogs.categories.find((c) => c.id === categoryId);
+    return match ? match.name : "categoria removida";
   };
 
   if (!invoice) {
@@ -65,13 +93,19 @@ export default function NotaDetalhe() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-colgate-graphite">
-            {invoice.invoice_type === "NFSE" ? "NFS-e" : "NF-e"} #{invoice.number}
+            {formatInvoiceType(invoice.invoice_type)} #{invoice.number}
           </h2>
           <p className="text-sm text-gray-500">{invoice.supplier_name}</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge status={invoice.workflow_status}>{invoice.workflow_status}</Badge>
           <Badge status={invoice.payment_status}>{invoice.payment_status}</Badge>
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-colgate-blue transition-colors hover:bg-colgate-blue/10"
+          >
+            <Pencil size={16} /> Editar
+          </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
@@ -121,21 +155,43 @@ export default function NotaDetalhe() {
         <div className="card space-y-4">
           <h3 className="text-sm font-bold text-colgate-graphite">Classificacao e Controle</h3>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">Numero do Pedido</label>
-            <input
-              type="text"
-              className="input-field"
-              defaultValue={invoice.purchase_order || ""}
-              onBlur={(e) => {
-                if (e.target.value !== (invoice.purchase_order || "")) {
-                  handleUpdate("purchase_order", e.target.value);
-                }
-              }}
-              disabled={saving}
-              placeholder="Nao identificado automaticamente"
-            />
-          </div>
+          {invoice.suggested_category_id && !invoice.category_id && (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-colgate-blue/20 bg-colgate-blue/5 px-3 py-2.5">
+              <div className="flex items-center gap-2 text-sm text-colgate-graphite">
+                <Sparkles size={16} className="shrink-0 text-colgate-blue" />
+                <span>
+                  Parecido com notas de{" "}
+                  <span className="font-semibold">{invoice.supplier_name}</span> categorizadas como{" "}
+                  <span className="font-semibold">{categoryNameById(invoice.suggested_category_id)}</span>
+                </span>
+              </div>
+              <button
+                onClick={() => handleUpdate("category_id", invoice.suggested_category_id)}
+                disabled={saving}
+                className="shrink-0 text-xs font-semibold text-colgate-blue hover:underline"
+              >
+                Usar sugestao
+              </button>
+            </div>
+          )}
+
+          {invoice.ai_suggested_category && !invoice.category_id && (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-colgate-blue/20 bg-colgate-blue/5 px-3 py-2.5">
+              <div className="flex items-center gap-2 text-sm text-colgate-graphite">
+                <Sparkles size={16} className="shrink-0 text-colgate-blue" />
+                <span>
+                  Categoria sugerida pela IA: <span className="font-semibold">{invoice.ai_suggested_category}</span>
+                </span>
+              </div>
+              <button
+                onClick={applySuggestedCategory}
+                disabled={saving}
+                className="shrink-0 text-xs font-semibold text-colgate-blue hover:underline"
+              >
+                Usar sugestao
+              </button>
+            </div>
+          )}
 
           <SelectField
             label="Categoria"
@@ -227,6 +283,14 @@ export default function NotaDetalhe() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {showEditModal && (
+        <InvoiceEditModal
+          invoice={invoice}
+          onClose={() => setShowEditModal(false)}
+          onSaved={(data) => setInvoice((prev) => ({ ...prev, ...data }))}
+        />
       )}
     </div>
   );

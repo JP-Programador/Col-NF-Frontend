@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import Badge from "../components/common/Badge";
 import InvoiceFilters from "../components/notas/InvoiceFilters";
 import { api } from "../services/api";
-import { formatCurrency, formatDate } from "../utils/format";
+import { formatCurrency, formatDate, formatInvoiceType } from "../utils/format";
 
 const EMPTY_FILTERS = {
   search: "",
@@ -56,7 +56,7 @@ export default function Notas() {
 
   // 🎨 MODAL MODERNA DE CONFIRMAÇÃO DE EXCLUSÃO
   const handleDelete = async (invoice) => {
-    const label = `${invoice.invoice_type === "NFSE" ? "NFS-e" : "NF-e"} #${invoice.number}`;
+    const label = `${formatInvoiceType(invoice.invoice_type)} #${invoice.number}`;
 
     const confirmResult = await Swal.fire({
       title: "Excluir Nota Fiscal?",
@@ -178,7 +178,7 @@ export default function Notas() {
                 <tr key={invoice.id} className="border-b border-gray-50 hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <span className="text-xs font-semibold text-gray-500">
-                      {invoice.invoice_type === "NFSE" ? "NFS-e" : "NF-e"}
+                      {formatInvoiceType(invoice.invoice_type)}
                     </span>
                   </td>
                   <td className="px-4 py-3">

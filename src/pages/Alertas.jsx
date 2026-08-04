@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { api } from "../services/api";
+import { formatInvoiceType } from "../utils/format";
 
 const ALERT_LABELS = {
   duplicidade: "Possivel duplicidade",
@@ -58,7 +59,7 @@ export default function Alertas() {
                         to={`/notas/${alert.invoice_id}`}
                         className="text-xs font-medium text-colgate-blue hover:underline"
                       >
-                        {alert.invoices.invoice_type === "NFSE" ? "NFS-e" : "NF-e"} #{alert.invoices.number} -{" "}
+                        {formatInvoiceType(alert.invoices.invoice_type)} #{alert.invoices.number} -{" "}
                         {alert.invoices.supplier_name}
                       </Link>
                     )}

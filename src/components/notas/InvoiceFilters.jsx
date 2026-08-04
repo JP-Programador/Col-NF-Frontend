@@ -19,6 +19,7 @@ export default function InvoiceFilters({ filters, onChange, categories, costCent
         <option value="">Todos os tipos</option>
         <option value="NFSE">NFS-e</option>
         <option value="NFE">NF-e</option>
+        <option value="RECIBO">Recibo</option>
       </select>
 
       <select className="input-field" value={filters.payment_status} onChange={(e) => update("payment_status", e.target.value)}>
