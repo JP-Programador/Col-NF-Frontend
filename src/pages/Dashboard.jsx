@@ -4,6 +4,7 @@ import {
   Calendar,
   FileText,
   Receipt,
+  ReceiptText,
   ShoppingBag,
   Users,
   Wallet,
@@ -51,6 +52,7 @@ export default function Dashboard() {
         <KpiCard label="Notas Processadas" value={summary?.quantidade_notas ?? 0} icon={FileText} accent="blue" />
         <KpiCard label="NFS-e" value={summary?.quantidade_nfse ?? 0} icon={Receipt} accent="graphite" />
         <KpiCard label="NF-e" value={summary?.quantidade_nfe ?? 0} icon={ShoppingBag} accent="graphite" />
+        <KpiCard label="Recibos" value={summary?.quantidade_recibo ?? 0} icon={ReceiptText} accent="graphite" />
         <KpiCard label="Fornecedores Ativos" value={summary?.fornecedores_ativos ?? 0} icon={Users} accent="blue" />
         <KpiCard label="Ticket Medio" value={formatCurrency(summary?.ticket_medio)} icon={Building2} accent="graphite" />
         <KpiCard label="Vence em 7 Dias" value={summary?.vence_7_dias ?? 0} icon={Calendar} accent="amber" />
