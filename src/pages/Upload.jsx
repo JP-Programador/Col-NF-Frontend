@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import FileDropzone from "../components/upload/FileDropzone";
 import UploadItemRow from "../components/upload/UploadItemRow";
 import { api } from "../services/api";
+import { showAlert } from "../utils/alerts";
 
 export default function UploadPage() {
   const [queue, setQueue] = useState([]);
@@ -43,6 +44,20 @@ export default function UploadPage() {
           };
         });
       });
+
+      const okCount = data.filter((r) => ["sucesso", "revisao"].includes(r.status)).length;
+      const errorCount = data.filter((r) => r.status === "erro").length;
+
+      if (errorCount === 0) {
+        showAlert.toast(`${okCount} nota(s) processada(s) com sucesso!`, "success");
+      } else if (okCount === 0) {
+        showAlert.error("Falha no processamento", `${errorCount} arquivo(s) nao puderam ser processados.`);
+      } else {
+        showAlert.warning(
+          "Processamento concluido com avisos",
+          `${okCount} processada(s) com sucesso, ${errorCount} com erro.`
+        );
+      }
     } catch (error) {
       setQueue((prev) =>
         prev.map((item) =>
@@ -51,6 +66,7 @@ export default function UploadPage() {
             : item
         )
       );
+      showAlert.error("Erro ao enviar", error.response?.data?.detail || "Nao foi possivel enviar os arquivos.");
     } finally {
       setUploading(false);
     }

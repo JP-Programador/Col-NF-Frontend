@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Badge from "../components/common/Badge";
 import InvoiceEditModal from "../components/notas/InvoiceEditModal";
 import { api } from "../services/api";
+import { showAlert } from "../utils/alerts";
 import { formatCnpj, formatCurrency, formatDate, formatInvoiceType } from "../utils/format";
 
 export default function NotaDetalhe() {
@@ -13,7 +14,6 @@ export default function NotaDetalhe() {
   const [invoice, setInvoice] = useState(null);
   const [catalogs, setCatalogs] = useState({ categories: [], costCenters: [], branches: [] });
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
   const loadInvoice = () => {
@@ -35,6 +35,8 @@ export default function NotaDetalhe() {
     try {
       const { data } = await api.patch(`/invoices/${id}`, { [field]: value || null });
       setInvoice((prev) => ({ ...prev, ...data }));
+    } catch (err) {
+      showAlert.error("Erro ao salvar", err.response?.data?.detail || "Nao foi possivel salvar a alteracao.");
     } finally {
       setSaving(false);
     }
@@ -56,6 +58,9 @@ export default function NotaDetalhe() {
 
       const { data } = await api.patch(`/invoices/${id}`, { category_id: match.id });
       setInvoice((prev) => ({ ...prev, ...data }));
+      showAlert.toast("Categoria aplicada!", "success");
+    } catch (err) {
+      showAlert.error("Erro ao aplicar categoria", err.response?.data?.detail || "Tente novamente.");
     } finally {
       setSaving(false);
     }
@@ -63,16 +68,19 @@ export default function NotaDetalhe() {
 
   const handleDelete = async () => {
     const label = `${formatInvoiceType(invoice.invoice_type)} #${invoice.number}`;
-    if (!window.confirm(`Excluir permanentemente a nota ${label}? Essa acao nao pode ser desfeita.`)) {
-      return;
-    }
-    setDeleting(true);
-    try {
-      await api.delete(`/invoices/${id}`);
-      navigate("/notas");
-    } finally {
-      setDeleting(false);
-    }
+
+    const confirmed = await showAlert.confirm({
+      title: "Excluir nota fiscal?",
+      text: `Deseja excluir permanentemente a nota ${label}? Essa acao nao pode ser desfeita.`,
+      confirmText: "Sim, excluir",
+      danger: true,
+      onConfirm: () => api.delete(`/invoices/${id}`),
+    });
+
+    if (!confirmed) return;
+
+    showAlert.toast("Nota excluida com sucesso!", "success");
+    navigate("/notas");
   };
 
   const categoryNameById = (categoryId) => {
@@ -108,7 +116,6 @@ export default function NotaDetalhe() {
           </button>
           <button
             onClick={handleDelete}
-            disabled={deleting}
             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-colgate-red transition-colors hover:bg-colgate-red/10 disabled:opacity-50"
           >
             <Trash2 size={16} /> Excluir Nota

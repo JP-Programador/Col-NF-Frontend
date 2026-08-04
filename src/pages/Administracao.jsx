@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import Badge from "../components/common/Badge";
 import { api } from "../services/api";
+import { showAlert } from "../utils/alerts";
 
 const BASE_TABS = [
   { key: "categories", label: "Categorias", endpoint: "/categories", fields: ["name", "description"] },
@@ -42,9 +43,14 @@ export default function Administracao() {
 
   const handleCreate = async (event) => {
     event.preventDefault();
-    await api.post(activeTab.endpoint, form);
-    setForm({});
-    loadItems(activeTab);
+    try {
+      await api.post(activeTab.endpoint, form);
+      setForm({});
+      loadItems(activeTab);
+      showAlert.toast("Registro adicionado!", "success");
+    } catch (err) {
+      showAlert.error("Erro ao adicionar", err.response?.data?.detail || "Tente novamente.");
+    }
   };
 
   return (
@@ -148,6 +154,7 @@ function UsersPanel({ items, loading, form, setForm, onCreated }) {
       });
       setForm({});
       onCreated();
+      showAlert.toast("Login criado com sucesso!", "success");
     } catch (err) {
       setError(err.response?.data?.detail || "Erro ao criar usuario.");
     } finally {
@@ -156,22 +163,28 @@ function UsersPanel({ items, loading, form, setForm, onCreated }) {
   };
 
   const toggleActive = async (userRow) => {
-    await api.patch(`/users/${userRow.id}`, { active: !userRow.active });
-    onCreated();
+    try {
+      await api.patch(`/users/${userRow.id}`, { active: !userRow.active });
+      onCreated();
+      showAlert.toast(userRow.active ? "Usuario desativado." : "Usuario ativado.", "success");
+    } catch (err) {
+      showAlert.error("Erro ao atualizar usuario", err.response?.data?.detail || "Tente novamente.");
+    }
   };
 
   const handleDelete = async (userRow) => {
-    const confirmed = window.confirm(
-      `Excluir o login de "${userRow.full_name}" (${userRow.email})?\n\nAs notas e uploads que ele ja enviou serao mantidos.`
-    );
+    const confirmed = await showAlert.confirm({
+      title: "Excluir login?",
+      text: `Excluir o login de "${userRow.full_name}" (${userRow.email})? As notas e uploads que ele ja enviou serao mantidos.`,
+      confirmText: "Sim, excluir",
+      danger: true,
+      onConfirm: () => api.delete(`/users/${userRow.id}`),
+    });
+
     if (!confirmed) return;
 
-    try {
-      await api.delete(`/users/${userRow.id}`);
-      onCreated();
-    } catch (err) {
-      alert(err.response?.data?.detail || "Erro ao excluir usuario.");
-    }
+    onCreated();
+    showAlert.toast("Usuario excluido com sucesso!", "success");
   };
 
   return (

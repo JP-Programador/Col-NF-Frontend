@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { useState } from "react";
 
 import { api } from "../../services/api";
+import { showAlert } from "../../utils/alerts";
 import { formatInvoiceType } from "../../utils/format";
 
 const EDITABLE_FIELDS = [
@@ -44,6 +45,7 @@ export default function InvoiceEditModal({ invoice, onClose, onSaved }) {
       const { data } = await api.patch(`/invoices/${invoice.id}`, payload);
       onSaved(data);
       onClose();
+      showAlert.toast("Nota atualizada com sucesso!", "success");
     } catch (err) {
       setError(err.response?.data?.detail || "Erro ao salvar as alteracoes.");
     } finally {

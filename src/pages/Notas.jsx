@@ -1,11 +1,11 @@
 import { Download, FileSpreadsheet, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
 
 import Badge from "../components/common/Badge";
 import InvoiceFilters from "../components/notas/InvoiceFilters";
 import { api } from "../services/api";
+import { showAlert } from "../utils/alerts";
 import { formatCurrency, formatDate, formatInvoiceType } from "../utils/format";
 
 const EMPTY_FILTERS = {
@@ -54,76 +54,46 @@ export default function Notas() {
     setPage(1);
   };
 
-  // 🎨 MODAL MODERNA DE CONFIRMAÇÃO DE EXCLUSÃO
   const handleDelete = async (invoice) => {
     const label = `${formatInvoiceType(invoice.invoice_type)} #${invoice.number}`;
 
-    const confirmResult = await Swal.fire({
-      title: "Excluir Nota Fiscal?",
-      html: `Deseja excluir permanentemente a nota <b style="color: #f3f4f6">${label}</b>?<br><span style="font-size: 0.85em; color: #9ca3af;">Essa ação não pode ser desfeita.</span>`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#dc2626", // Vermelho
-      cancelButtonColor: "#374151",  // Cinza escuro
-      confirmButtonText: "Sim, excluir",
-      cancelButtonText: "Cancelar",
-      background: "#1f2937",        // Fundo escuro (Dark Mode)
-      color: "#f9fafb",              // Cor do texto
-      border: "1px solid #374151",
-      customClass: {
-        popup: "rounded-2xl shadow-2xl border border-gray-700",
-        confirmButton: "px-4 py-2 rounded-xl font-medium",
-        cancelButton: "px-4 py-2 rounded-xl font-medium",
-      },
+    const confirmed = await showAlert.confirm({
+      title: "Excluir nota fiscal?",
+      text: `Deseja excluir permanentemente a nota ${label}? Essa acao nao pode ser desfeita.`,
+      confirmText: "Sim, excluir",
+      danger: true,
+      onConfirm: () => api.delete(`/invoices/${invoice.id}`),
     });
 
-    // Se o usuário clicou em "Sim, excluir"
-    if (confirmResult.isConfirmed) {
-      try {
-        await api.delete(`/invoices/${invoice.id}`);
+    if (!confirmed) return;
 
-        // Atualiza a lista na tela imediatamente
-        setResult((prev) => ({
-          ...prev,
-          items: prev.items.filter((item) => item.id !== invoice.id),
-          total: Math.max(0, (prev.total || 1) - 1),
-        }));
+    setResult((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.id !== invoice.id),
+      total: Math.max(0, (prev.total || 1) - 1),
+    }));
 
-        // Toast discreto confirmando a exclusão
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          icon: "success",
-          title: "Nota excluída com sucesso!",
-          showConfirmButton: false,
-          timer: 2500,
-          background: "#111827",
-          color: "#fff",
-        });
-      } catch (error) {
-        // Alerta em caso de erro na requisição
-        Swal.fire({
-          title: "Erro ao excluir",
-          text: "Não foi possível remover a nota fiscal. Tente novamente.",
-          icon: "error",
-          background: "#1f2937",
-          color: "#f9fafb",
-          confirmButtonColor: "#dc2626",
-        });
-      }
-    }
+    showAlert.toast("Nota excluida com sucesso!", "success");
   };
 
   const handleExport = async (format) => {
-    const response = await api.get(`/export/${format}`, { responseType: "blob" });
-    const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = format === "excel" ? "notas_fiscais.xlsx" : "notas_fiscais.csv";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(blobUrl);
+    const closeLoading = showAlert.loading("Gerando arquivo...", "Isso pode levar alguns segundos.");
+    try {
+      const response = await api.get(`/export/${format}`, { responseType: "blob" });
+      const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = format === "excel" ? "notas_fiscais.xlsx" : "notas_fiscais.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+      closeLoading();
+      showAlert.toast("Exportacao concluida!", "success");
+    } catch (err) {
+      closeLoading();
+      showAlert.error("Erro ao exportar", err.response?.data?.detail || "Nao foi possivel gerar o arquivo.");
+    }
   };
 
   const totalPages = Math.max(1, Math.ceil((result.total || 0) / 20));
