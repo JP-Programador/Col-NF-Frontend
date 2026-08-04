@@ -15,6 +15,7 @@ const EMPTY_FILTERS = {
   category_id: "",
   cost_center_id: "",
   branch_id: "",
+  purchase_order: "",
   date_from: "",
   date_to: "",
 };
@@ -158,6 +159,7 @@ export default function Notas() {
             <tr className="border-b border-gray-100 text-left text-xs font-semibold uppercase text-gray-400">
               <th className="px-4 py-3">Tipo</th>
               <th className="px-4 py-3">Numero</th>
+              <th className="px-4 py-3">Pedido</th>
               <th className="px-4 py-3">Fornecedor</th>
               <th className="px-4 py-3">Emissao</th>
               <th className="px-4 py-3">Vencimento</th>
@@ -169,7 +171,7 @@ export default function Notas() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">Carregando...</td>
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">Carregando...</td>
               </tr>
             ) : result.items?.length ? (
               result.items.map((invoice) => (
@@ -184,6 +186,7 @@ export default function Notas() {
                       {invoice.number}
                     </Link>
                   </td>
+                  <td className="px-4 py-3 text-gray-500">{invoice.purchase_order || "-"}</td>
                   <td className="px-4 py-3 text-colgate-graphite">{invoice.supplier_name || "-"}</td>
                   <td className="px-4 py-3 text-gray-500">{formatDate(invoice.issue_date)}</td>
                   <td className="px-4 py-3 text-gray-500">{formatDate(invoice.due_date)}</td>
@@ -206,7 +209,7 @@ export default function Notas() {
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">Nenhuma nota encontrada.</td>
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">Nenhuma nota encontrada.</td>
               </tr>
             )}
           </tbody>

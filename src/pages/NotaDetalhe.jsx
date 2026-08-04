@@ -87,6 +87,7 @@ export default function NotaDetalhe() {
           <h3 className="text-sm font-bold text-colgate-graphite">Dados Extraidos</h3>
           <dl className="grid grid-cols-2 gap-4 text-sm">
             <Field label="Numero" value={invoice.number} />
+            <Field label="Pedido" value={invoice.purchase_order} />
             <Field label="Serie" value={invoice.series} />
             <Field label="Data de Emissao" value={formatDate(invoice.issue_date)} />
             <Field label="Fornecedor" value={invoice.supplier_name} />
@@ -119,6 +120,22 @@ export default function NotaDetalhe() {
 
         <div className="card space-y-4">
           <h3 className="text-sm font-bold text-colgate-graphite">Classificacao e Controle</h3>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Numero do Pedido</label>
+            <input
+              type="text"
+              className="input-field"
+              defaultValue={invoice.purchase_order || ""}
+              onBlur={(e) => {
+                if (e.target.value !== (invoice.purchase_order || "")) {
+                  handleUpdate("purchase_order", e.target.value);
+                }
+              }}
+              disabled={saving}
+              placeholder="Nao identificado automaticamente"
+            />
+          </div>
 
           <SelectField
             label="Categoria"

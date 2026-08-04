@@ -49,6 +49,13 @@ export default function InvoiceFilters({ filters, onChange, categories, costCent
         ))}
       </select>
 
+      <input
+        className="input-field"
+        placeholder="Numero do pedido"
+        value={filters.purchase_order}
+        onChange={(e) => update("purchase_order", e.target.value)}
+      />
+
       <input type="date" className="input-field" value={filters.date_from} onChange={(e) => update("date_from", e.target.value)} />
       <input type="date" className="input-field" value={filters.date_to} onChange={(e) => update("date_to", e.target.value)} />
     </div>
