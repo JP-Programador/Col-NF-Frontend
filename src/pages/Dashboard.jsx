@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Total Gasto" value={formatCurrency(summary?.total_gasto)} icon={Wallet} accent="red" />
         <KpiCard label="Notas Processadas" value={summary?.quantidade_notas ?? 0} icon={FileText} accent="blue" />
         <KpiCard label="NFS-e" value={summary?.quantidade_nfse ?? 0} icon={Receipt} accent="graphite" />

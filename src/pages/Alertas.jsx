@@ -46,10 +46,10 @@ export default function Alertas() {
         ) : alerts.length ? (
           <div className="divide-y divide-gray-50">
             {alerts.map((alert) => (
-              <div key={alert.id} className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle size={18} className="mt-0.5 text-amber-500" />
-                  <div>
+              <div key={alert.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-start gap-3">
+                  <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-500" />
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold text-colgate-graphite">
                       {ALERT_LABELS[alert.alert_type] || alert.alert_type}
                     </p>
@@ -67,7 +67,7 @@ export default function Alertas() {
                 </div>
                 <button
                   onClick={() => handleResolve(alert.id)}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-50"
+                  className="flex shrink-0 items-center gap-1.5 self-start rounded-lg px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 sm:self-auto"
                 >
                   <CheckCircle2 size={14} /> Resolver
                 </button>

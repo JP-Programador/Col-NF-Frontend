@@ -27,7 +27,7 @@ export default function FileDropzone({ onFilesSelected }) {
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
-      className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 text-center transition-colors ${
+      className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-colors sm:p-12 ${
         dragging ? "border-colgate-red bg-colgate-red/5" : "border-gray-200 bg-gray-50 hover:border-colgate-blue/50"
       }`}
     >

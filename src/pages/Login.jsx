@@ -54,7 +54,7 @@ export default function Login() {
         </p>
       </div>
 
-      <div className="flex flex-1 items-center justify-center bg-gray-50 p-8">
+      <div className="flex flex-1 items-center justify-center bg-gray-50 p-5 sm:p-8">
         <div className="w-full max-w-sm">
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-colgate-red text-sm font-extrabold text-white">

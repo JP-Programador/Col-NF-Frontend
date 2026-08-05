@@ -100,16 +100,16 @@ export default function Notas() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-bold text-colgate-graphite">Lista de Notas</h2>
           <p className="text-sm text-gray-500">{result.total ?? 0} notas encontradas</p>
         </div>
         <div className="flex gap-2">
-          <button className="btn-secondary" onClick={() => handleExport("csv")}>
+          <button className="btn-secondary flex-1 sm:flex-none" onClick={() => handleExport("csv")}>
             <Download size={16} /> CSV
           </button>
-          <button className="btn-secondary" onClick={() => handleExport("excel")}>
+          <button className="btn-secondary flex-1 sm:flex-none" onClick={() => handleExport("excel")}>
             <FileSpreadsheet size={16} /> Excel
           </button>
         </div>

@@ -74,14 +74,14 @@ export default function NotaDetalhe() {
         <ArrowLeft size={16} /> Voltar para lista de notas
       </Link>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-colgate-graphite">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="truncate text-xl font-bold text-colgate-graphite">
             {formatInvoiceType(invoice.invoice_type)} #{invoice.number}
           </h2>
-          <p className="text-sm text-gray-500">{invoice.supplier_name}</p>
+          <p className="truncate text-sm text-gray-500">{invoice.supplier_name}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge status={invoice.workflow_status}>{invoice.workflow_status}</Badge>
           <Badge status={invoice.payment_status}>{invoice.payment_status}</Badge>
           <button
@@ -102,7 +102,7 @@ export default function NotaDetalhe() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card space-y-4">
           <h3 className="text-sm font-bold text-colgate-graphite">Dados Extraidos</h3>
-          <dl className="grid grid-cols-2 gap-4 text-sm">
+          <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             <Field label="Numero" value={invoice.number} />
             <Field label="Pedido" value={invoice.purchase_order} />
             <Field label="Serie" value={invoice.series} />
@@ -139,9 +139,9 @@ export default function NotaDetalhe() {
           <h3 className="text-sm font-bold text-colgate-graphite">Classificacao e Controle</h3>
 
           {invoice.suggested_category_id && !invoice.category_id && (
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-colgate-blue/20 bg-colgate-blue/5 px-3 py-2.5">
-              <div className="flex items-center gap-2 text-sm text-colgate-graphite">
-                <Sparkles size={16} className="shrink-0 text-colgate-blue" />
+            <div className="flex flex-col gap-2 rounded-lg border border-colgate-blue/20 bg-colgate-blue/5 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-2 text-sm text-colgate-graphite">
+                <Sparkles size={16} className="mt-0.5 shrink-0 text-colgate-blue" />
                 <span>
                   Parecido com notas de{" "}
                   <span className="font-semibold">{invoice.supplier_name}</span> categorizadas como{" "}

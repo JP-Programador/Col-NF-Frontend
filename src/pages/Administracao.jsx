@@ -60,12 +60,12 @@ export default function Administracao() {
         <p className="text-sm text-gray-500">Cadastro de categorias, centros de custo, filiais e usuarios.</p>
       </div>
 
-      <div className="flex gap-2 border-b border-gray-100">
+      <div className="flex gap-2 overflow-x-auto border-b border-gray-100">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab)}
-            className={`border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+            className={`shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
               activeTab.key === tab.key
                 ? "border-colgate-red text-colgate-red"
                 : "border-transparent text-gray-500 hover:text-colgate-graphite"

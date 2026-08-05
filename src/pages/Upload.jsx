@@ -88,15 +88,15 @@ export default function UploadPage() {
 
       {queue.length > 0 && (
         <div className="card">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-sm font-bold text-colgate-graphite">
               Arquivos ({queue.length}) &middot; {successCount} processados
             </h3>
             <div className="flex gap-2">
-              <button className="btn-secondary" onClick={() => setQueue([])} disabled={uploading}>
+              <button className="btn-secondary flex-1 sm:flex-none" onClick={() => setQueue([])} disabled={uploading}>
                 Limpar lista
               </button>
-              <button className="btn-primary" onClick={handleUploadAll} disabled={uploading || pendingCount === 0}>
+              <button className="btn-primary flex-1 sm:flex-none" onClick={handleUploadAll} disabled={uploading || pendingCount === 0}>
                 {uploading ? "Processando..." : `Enviar ${pendingCount || ""} arquivo(s)`}
               </button>
             </div>
