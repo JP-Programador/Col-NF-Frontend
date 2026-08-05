@@ -42,30 +42,6 @@ export default function NotaDetalhe() {
     }
   };
 
-  const applySuggestedCategory = async () => {
-    const suggestion = invoice.ai_suggested_category;
-    if (!suggestion) return;
-
-    setSaving(true);
-    try {
-      let match = catalogs.categories.find((c) => c.name.trim().toLowerCase() === suggestion.trim().toLowerCase());
-
-      if (!match) {
-        const { data: created } = await api.post("/categories", { name: suggestion });
-        match = created;
-        setCatalogs((prev) => ({ ...prev, categories: [...prev.categories, created] }));
-      }
-
-      const { data } = await api.patch(`/invoices/${id}`, { category_id: match.id });
-      setInvoice((prev) => ({ ...prev, ...data }));
-      showAlert.toast("Categoria aplicada!", "success");
-    } catch (err) {
-      showAlert.error("Erro ao aplicar categoria", err.response?.data?.detail || "Tente novamente.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleDelete = async () => {
     const label = `${formatInvoiceType(invoice.invoice_type)} #${invoice.number}`;
 
@@ -182,29 +158,18 @@ export default function NotaDetalhe() {
             </div>
           )}
 
-          {invoice.ai_suggested_category && !invoice.category_id && (
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-colgate-blue/20 bg-colgate-blue/5 px-3 py-2.5">
-              <div className="flex items-center gap-2 text-sm text-colgate-graphite">
-                <Sparkles size={16} className="shrink-0 text-colgate-blue" />
-                <span>
-                  Categoria sugerida pela IA: <span className="font-semibold">{invoice.ai_suggested_category}</span>
-                </span>
-              </div>
-              <button
-                onClick={applySuggestedCategory}
-                disabled={saving}
-                className="shrink-0 text-xs font-semibold text-colgate-blue hover:underline"
-              >
-                Usar sugestao
-              </button>
-            </div>
+          {invoice.ai_suggested_category && invoice.category_id && (
+            <p className="flex items-center gap-2 text-xs text-gray-400">
+              <Sparkles size={14} className="shrink-0 text-colgate-blue" />
+              Categoria aplicada automaticamente pela IA com base no conteudo do documento.
+            </p>
           )}
 
-          <SelectField
-            label="Categoria"
+          <CategoryField
             value={invoice.category_id || ""}
             options={catalogs.categories}
             onChange={(v) => handleUpdate("category_id", v)}
+            onCreated={(created) => setCatalogs((prev) => ({ ...prev, categories: [...prev.categories, created] }))}
             disabled={saving}
           />
           <SelectField
@@ -324,6 +289,91 @@ function SelectField({ label, value, options, onChange, disabled }) {
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+function CategoryField({ value, options, onChange, onCreated, disabled }) {
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleSelectChange = (v) => {
+    if (v === "__new__") {
+      setCreating(true);
+      return;
+    }
+    onChange(v);
+  };
+
+  const handleCreate = async () => {
+    const name = newName.trim();
+    if (!name) return;
+
+    setSaving(true);
+    try {
+      const { data } = await api.post("/categories", { name });
+      onCreated(data);
+      onChange(data.id);
+      setCreating(false);
+      setNewName("");
+      showAlert.toast("Categoria criada com sucesso!", "success");
+    } catch (err) {
+      showAlert.error("Erro ao criar categoria", err.response?.data?.detail || "Tente novamente.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setCreating(false);
+    setNewName("");
+  };
+
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm font-medium text-gray-700">Categoria</label>
+
+      {creating ? (
+        <div className="flex gap-2">
+          <input
+            autoFocus
+            type="text"
+            className="input-field"
+            placeholder="Nome da nova categoria"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+            disabled={saving}
+          />
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={saving || !newName.trim()}
+            className="btn-primary shrink-0"
+          >
+            {saving ? "..." : "Criar"}
+          </button>
+          <button type="button" onClick={handleCancel} disabled={saving} className="btn-secondary shrink-0">
+            Cancelar
+          </button>
+        </div>
+      ) : (
+        <select
+          className="input-field"
+          value={value}
+          onChange={(e) => handleSelectChange(e.target.value)}
+          disabled={disabled}
+        >
+          <option value="">Nao definido</option>
+          {options.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.name}
+            </option>
+          ))}
+          <option value="__new__">+ Adicionar nova categoria...</option>
+        </select>
+      )}
     </div>
   );
 }

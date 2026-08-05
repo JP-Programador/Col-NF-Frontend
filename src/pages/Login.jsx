@@ -46,8 +46,7 @@ export default function Login() {
             de Notas Fiscais
           </h1>
           <p className="mt-4 max-w-md text-white/80">
-            Upload, leitura automatica e consolidacao de notas fiscais em um unico painel
-            executivo.
+            Conectando a sua operação à precisão que ela exige.
           </p>
         </div>
         <p className="text-xs text-white/60">
@@ -65,7 +64,7 @@ export default function Login() {
           </div>
 
           <h2 className="text-2xl font-bold text-colgate-graphite">Entrar</h2>
-          <p className="mt-1 text-sm text-gray-500">Acesse com suas credenciais corporativas.</p>
+          <p className="mt-1 text-sm text-gray-500">Acesse com suas credenciais.</p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div>
