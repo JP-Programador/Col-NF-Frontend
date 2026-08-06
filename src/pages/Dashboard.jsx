@@ -33,15 +33,17 @@ import { formatCurrency } from "../utils/format";
 const CHART_COLORS = ["#C8102E", "#005EB8", "#1F2937", "#F59E0B", "#10B981", "#8B5CF6", "#EC4899", "#0EA5E9"];
 
 export default function Dashboard() {
-  const { data: summary, loading: loadingSummary } = useApi(() => api.get("/dashboard/summary"), []);
-  const { data: monthly } = useApi(() => api.get("/dashboard/monthly"), []);
-  const { data: suppliers } = useApi(() => api.get("/dashboard/suppliers"), []);
-  const { data: categories } = useApi(() => api.get("/dashboard/categories"), []);
-  const { data: serviceVsProduct } = useApi(() => api.get("/dashboard/service-vs-product"), []);
-  const { data: costCenters } = useApi(() => api.get("/dashboard/cost-centers"), []);
-  const { data: branches } = useApi(() => api.get("/dashboard/branches"), []);
+  const { data: overview, loading: loadingOverview } = useApi(() => api.get("/dashboard/overview"), []);
 
-  if (loadingSummary) {
+  const summary = overview?.summary;
+  const monthly = overview?.monthly;
+  const suppliers = overview?.suppliers;
+  const categories = overview?.categories;
+  const serviceVsProduct = overview?.service_vs_product;
+  const costCenters = overview?.cost_centers;
+  const branches = overview?.branches;
+
+  if (loadingOverview) {
     return <p className="text-sm text-gray-400">Carregando indicadores...</p>;
   }
 
