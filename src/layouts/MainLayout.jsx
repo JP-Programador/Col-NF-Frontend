@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 
 import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
+import UploadStatusBadge from "../components/upload/UploadStatusBadge";
 
 export default function MainLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function MainLayout() {
           <Outlet />
         </main>
       </div>
+      <UploadStatusBadge />
     </div>
   );
 }

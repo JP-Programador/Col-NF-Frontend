@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  BarChart3,
   CalendarClock,
   LayoutDashboard,
   ListChecks,
@@ -8,6 +9,8 @@ import {
   X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+
+import { useAuth } from "../../contexts/AuthContext";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -18,7 +21,14 @@ const NAV_ITEMS = [
   { to: "/administracao", label: "Administracao", icon: Settings },
 ];
 
+const ADMIN_NAV_ITEMS = [
+  { to: "/cobertura-ia", label: "Cobertura de IA", icon: BarChart3 },
+];
+
 function SidebarContent({ onNavigate }) {
+  const { isAdmin } = useAuth();
+  const items = isAdmin ? [...NAV_ITEMS, ...ADMIN_NAV_ITEMS] : NAV_ITEMS;
+
   return (
     <>
       <div className="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
@@ -32,7 +42,7 @@ function SidebarContent({ onNavigate }) {
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {items.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

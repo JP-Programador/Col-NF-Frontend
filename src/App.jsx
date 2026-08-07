@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 import Administracao from "./pages/Administracao";
 import Alertas from "./pages/Alertas";
+import CoberturaIA from "./pages/CoberturaIA";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotaDetalhe from "./pages/NotaDetalhe";
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/vencimentos" element={<Vencimentos />} />
         <Route path="/alertas" element={<Alertas />} />
         <Route path="/administracao" element={<Administracao />} />
+        <Route path="/cobertura-ia" element={<CoberturaIA />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
