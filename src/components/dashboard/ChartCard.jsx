@@ -1,7 +1,7 @@
 import { Maximize2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export default function ChartCard({ title, subtitle, children }) {
+export default function ChartCard({ title, subtitle, children, height = "h-56 sm:h-64 md:h-72" }) {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function ChartCard({ title, subtitle, children }) {
         </button>
       </div>
 
-      <div className="h-56 w-full sm:h-64 md:h-72">{children}</div>
+      <div className={`w-full ${height}`}>{children}</div>
 
       {expanded && (
         <div

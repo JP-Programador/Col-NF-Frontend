@@ -1,4 +1,4 @@
-import { Download, FileSpreadsheet, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, FileSpreadsheet, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -24,6 +24,7 @@ export default function Notas() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [result, setResult] = useState({ items: [], total: 0 });
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState({ by: "created_at", dir: "desc" });
   const [loading, setLoading] = useState(true);
   const [catalogs, setCatalogs] = useState({ categories: [], costCenters: [], branches: [] });
 
@@ -38,7 +39,7 @@ export default function Notas() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setLoading(true);
-      const params = { ...filters, page, page_size: 20 };
+      const params = { ...filters, page, page_size: 20, sort_by: sort.by, sort_dir: sort.dir };
       Object.keys(params).forEach((key) => !params[key] && delete params[key]);
 
       api
@@ -47,12 +48,39 @@ export default function Notas() {
         .finally(() => setLoading(false));
     }, 300);
     return () => clearTimeout(timeout);
-  }, [filters, page]);
+  }, [filters, page, sort]);
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
     setPage(1);
   };
+
+  const handleSort = (column) => {
+    setSort((prev) =>
+      prev.by === column ? { by: column, dir: prev.dir === "asc" ? "desc" : "asc" } : { by: column, dir: "asc" }
+    );
+    setPage(1);
+  };
+
+  const SortIcon = ({ column }) => {
+    if (sort.by !== column) return <ArrowUpDown size={13} className="text-gray-300" />;
+    return sort.dir === "asc" ? <ArrowUp size={13} className="text-colgate-blue" /> : <ArrowDown size={13} className="text-colgate-blue" />;
+  };
+
+  const SortableHeader = ({ column, children, align = "left" }) => (
+    <th className="px-4 py-3">
+      <button
+        type="button"
+        onClick={() => handleSort(column)}
+        className={`flex items-center gap-1 font-semibold uppercase tracking-wide text-gray-400 hover:text-colgate-graphite ${
+          align === "right" ? "ml-auto flex-row-reverse" : ""
+        }`}
+      >
+        {children}
+        <SortIcon column={column} />
+      </button>
+    </th>
+  );
 
   const handleDelete = async (invoice) => {
     const label = `${formatInvoiceType(invoice.invoice_type)} #${invoice.number}`;
@@ -126,15 +154,15 @@ export default function Notas() {
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 text-left text-xs font-semibold uppercase text-gray-400">
-              <th className="px-4 py-3">Tipo</th>
-              <th className="px-4 py-3">Numero</th>
-              <th className="px-4 py-3">Pedido</th>
-              <th className="px-4 py-3">Fornecedor</th>
-              <th className="px-4 py-3">Emissao</th>
-              <th className="px-4 py-3">Vencimento</th>
-              <th className="px-4 py-3 text-right">Valor</th>
-              <th className="px-4 py-3">Status</th>
+            <tr className="border-b border-gray-100 text-left text-xs text-gray-400">
+              <SortableHeader column="invoice_type">Tipo</SortableHeader>
+              <SortableHeader column="number">Numero</SortableHeader>
+              <SortableHeader column="purchase_order">Pedido</SortableHeader>
+              <SortableHeader column="supplier_name">Fornecedor</SortableHeader>
+              <SortableHeader column="issue_date">Emissao</SortableHeader>
+              <SortableHeader column="due_date">Vencimento</SortableHeader>
+              <SortableHeader column="total_value" align="right">Valor</SortableHeader>
+              <SortableHeader column="payment_status">Status</SortableHeader>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>

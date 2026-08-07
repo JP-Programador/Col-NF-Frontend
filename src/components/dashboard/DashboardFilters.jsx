@@ -5,10 +5,10 @@ const EMPTY_FILTERS = {
   date_to: "",
   category_id: "",
   cost_center_id: "",
-  branch_id: "",
+  supplier_id: "",
 };
 
-export default function DashboardFilters({ filters, onChange, categories, costCenters, branches }) {
+export default function DashboardFilters({ filters, onChange, categories, costCenters, suppliers }) {
   const update = (field, value) => onChange({ ...filters, [field]: value });
   const hasActiveFilters = Object.values(filters).some(Boolean);
 
@@ -62,15 +62,15 @@ export default function DashboardFilters({ filters, onChange, categories, costCe
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500">Filial</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500">Fornecedor</label>
         <select
           className="input-field"
-          value={filters.branch_id}
-          onChange={(e) => update("branch_id", e.target.value)}
+          value={filters.supplier_id}
+          onChange={(e) => update("supplier_id", e.target.value)}
         >
-          <option value="">Todas</option>
-          {(branches || []).map((b) => (
-            <option key={b.id} value={b.id}>{b.name}</option>
+          <option value="">Todos</option>
+          {(suppliers || []).map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
       </div>
