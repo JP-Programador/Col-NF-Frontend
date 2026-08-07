@@ -7,16 +7,16 @@ export default function KpiCard({ label, value, icon: Icon, accent = "graphite",
   };
 
   return (
-    <div className="card flex items-start justify-between">
-      <div>
+    <div className="card flex items-start justify-between gap-3">
+      <div className="min-w-0">
         <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</p>
-        <p className="mt-2 text-2xl font-extrabold text-colgate-graphite">
+        <p className="mt-2 truncate text-2xl font-extrabold text-colgate-graphite" title={typeof value === "string" ? value : undefined}>
           {value}
           {suffix && <span className="ml-1 text-sm font-medium text-gray-400">{suffix}</span>}
         </p>
       </div>
       {Icon && (
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${accentMap[accent]}`}>
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${accentMap[accent]}`}>
           <Icon size={20} />
         </div>
       )}

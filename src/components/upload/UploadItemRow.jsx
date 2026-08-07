@@ -1,10 +1,11 @@
-import { AlertTriangle, CheckCircle2, Copy, FileWarning, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Copy, FileWarning, Loader2 } from "lucide-react";
 
 const STATUS_CONFIG = {
   pendente: { icon: Loader2, label: "Aguardando", className: "text-gray-400", spin: false },
   enviando: { icon: Loader2, label: "Enviando...", className: "text-colgate-blue", spin: true },
   sucesso: { icon: CheckCircle2, label: "Sucesso", className: "text-emerald-600", spin: false },
   revisao: { icon: AlertTriangle, label: "Necessita revisao", className: "text-amber-600", spin: false },
+  aguardando_ia: { icon: Clock, label: "Aguardando cota da IA", className: "text-purple-600", spin: false },
   duplicada: { icon: Copy, label: "Duplicada", className: "text-purple-600", spin: false },
   erro: { icon: FileWarning, label: "Erro", className: "text-colgate-red", spin: false },
 };

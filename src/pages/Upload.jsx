@@ -47,16 +47,22 @@ export default function UploadPage() {
 
       const okCount = data.filter((r) => ["sucesso", "revisao"].includes(r.status)).length;
       const errorCount = data.filter((r) => r.status === "erro").length;
+      const pendingIaCount = data.filter((r) => r.status === "aguardando_ia").length;
 
-      if (errorCount === 0) {
+      if (errorCount === 0 && pendingIaCount === 0) {
         showAlert.toast(`${okCount} nota(s) processada(s) com sucesso!`, "success");
+      } else if (okCount === 0 && errorCount === 0) {
+        showAlert.warning(
+          "Aguardando cota da IA",
+          `${pendingIaCount} arquivo(s) esperando a cota diaria da IA renovar. Nao precisa reenviar - o sistema completa sozinho assim que houver cota disponivel.`
+        );
       } else if (okCount === 0) {
         showAlert.error("Falha no processamento", `${errorCount} arquivo(s) nao puderam ser processados.`);
       } else {
-        showAlert.warning(
-          "Processamento concluido com avisos",
-          `${okCount} processada(s) com sucesso, ${errorCount} com erro.`
-        );
+        const parts = [`${okCount} processada(s) com sucesso`];
+        if (errorCount) parts.push(`${errorCount} com erro`);
+        if (pendingIaCount) parts.push(`${pendingIaCount} aguardando cota da IA (sera completada automaticamente)`);
+        showAlert.warning("Processamento concluido com avisos", parts.join(", ") + ".");
       }
     } catch (error) {
       setQueue((prev) =>

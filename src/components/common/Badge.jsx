@@ -7,6 +7,7 @@ const STYLE_MAP = {
   recebida: "bg-colgate-blue/10 text-colgate-blue",
   aberta: "bg-amber-50 text-amber-700",
   revisao: "bg-amber-50 text-amber-700",
+  aguardando_ia: "bg-purple-50 text-purple-700",
   erro: "bg-colgate-red/10 text-colgate-red",
   vencida: "bg-colgate-red/10 text-colgate-red",
   duplicada: "bg-purple-50 text-purple-700",

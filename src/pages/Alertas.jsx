@@ -10,6 +10,7 @@ const ALERT_LABELS = {
   sem_categoria: "Sem categoria",
   sem_vencimento: "Sem vencimento",
   erro_leitura: "Erro de leitura",
+  aguardando_ia: "Aguardando cota da IA",
 };
 
 export default function Alertas() {
